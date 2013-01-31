@@ -58,13 +58,22 @@ void cv::goodFeaturesToTrack( InputArray _image, OutputArray _corners,
                               bool useHarrisDetector, double harrisK )
 {
     Mat image = _image.getMat(), mask = _mask.getMat();
-
+    
     CV_Assert( qualityLevel > 0 && minDistance >= 0 && maxCorners >= 0 );
     CV_Assert( mask.empty() || (mask.type() == CV_8UC1 && mask.size() == image.size()) );
 
     Mat eig, tmp;
+    vector<Point2f> corners;
     if( useHarrisDetector )
-        cornerHarris( image, eig, blockSize, 3, harrisK );
+    {
+        if(blockSize == 3){
+            cornerHarris( image, corners, mask, blockSize, 3, harrisK , &maxCorners, &qualityLevel , & minDistance, BORDER_DEFAULT);
+            Mat(corners).convertTo(_corners, _corners.fixedType() ? _corners.type() : CV_32F);
+            return;
+        } else {
+            cornerHarris( image, eig, blockSize, 3, harrisK );
+        }
+    }
     else
         cornerMinEigenVal( image, eig, blockSize, 3 );
 
@@ -93,12 +102,11 @@ void cv::goodFeaturesToTrack( InputArray _image, OutputArray _corners,
     }
 
     sort( tmpCorners, greaterThanPtr<float>() );
-    vector<Point2f> corners;
     size_t i, j, total = tmpCorners.size(), ncorners = 0;
 
     if(minDistance >= 1)
     {
-         // Partition the image into larger grids
+        // Partition the image into larger grids
         int w = image.cols;
         int h = image.rows;
 
@@ -117,10 +125,8 @@ void cv::goodFeaturesToTrack( InputArray _image, OutputArray _corners,
             int x = (int)((ofs - y*eig.step)/sizeof(float));
 
             bool good = true;
-
             int x_cell = x / cell_size;
             int y_cell = y / cell_size;
-
             int x1 = x_cell - 1;
             int y1 = y_cell - 1;
             int x2 = x_cell + 1;
@@ -144,7 +150,6 @@ void cv::goodFeaturesToTrack( InputArray _image, OutputArray _corners,
                         {
                             float dx = x - m[j].x;
                             float dy = y - m[j].y;
-
                             if( dx*dx + dy*dy < minDistance )
                             {
                                 good = false;
@@ -154,15 +159,13 @@ void cv::goodFeaturesToTrack( InputArray _image, OutputArray _corners,
                     }
                 }
             }
-
-            break_out:
-
+break_out:
             if(good)
             {
                 // printf("%d: %d %d -> %d %d, %d, %d -- %d %d %d %d, %d %d, c=%d\n",
                 //    i,x, y, x_cell, y_cell, (int)minDistance, cell_size,x1,y1,x2,y2, grid_width,grid_height,c);
                 grid[y_cell*grid_width + x_cell].push_back(Point2f((float)x, (float)y));
-
+                
                 corners.push_back(Point2f((float)x, (float)y));
                 ++ncorners;
 
@@ -178,14 +181,12 @@ void cv::goodFeaturesToTrack( InputArray _image, OutputArray _corners,
             int ofs = (int)((const uchar*)tmpCorners[i] - eig.data);
             int y = (int)(ofs / eig.step);
             int x = (int)((ofs - y*eig.step)/sizeof(float));
-
             corners.push_back(Point2f((float)x, (float)y));
             ++ncorners;
             if( maxCorners > 0 && (int)ncorners == maxCorners )
                 break;
         }
     }
-
     Mat(corners).convertTo(_corners, _corners.fixedType() ? _corners.type() : CV_32F);
 
     /*

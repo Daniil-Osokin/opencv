@@ -450,6 +450,11 @@ CV_EXPORTS_W void cornerHarris( InputArray src, OutputArray dst, int blockSize,
                                 int ksize, double k,
                                 int borderType=BORDER_DEFAULT );
 
+//! computes GoodFeaturesToTrack criteria at each image pixel
+CV_EXPORTS_W void cornerHarris( InputArray src, OutputArray dst, InputArray _mask, int blockSize,
+                                int ksize, double k, int* maxCorners ,double* qualityLevel, double* minDistance,
+                                int borderType=BORDER_DEFAULT );
+
 // low-level function for computing eigenvalues and eigenvectors of 2x2 matrices
 CV_EXPORTS void eigen2x2( const float* a, float* e, int n );
 
