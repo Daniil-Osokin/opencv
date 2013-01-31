@@ -594,6 +594,15 @@ void cv::cornerMinEigenVal( InputArray _src, OutputArray _dst, int blockSize, in
     Mat dst = _dst.getMat();
     cornerEigenValsVecs( src, dst, blockSize, ksize, MINEIGENVAL, 0, borderType );
 }
+#if 0
+void cv::cornerHarris( InputArray _src, OutputArray _dst, int blockSize, int ksize, double k, int borderType )
+{
+    Mat src = _src.getMat();
+    _dst.create( src.size(), CV_32F );
+    Mat dst = _dst.getMat();
+    cornerEigenValsVecs( src, dst, blockSize, ksize, HARRIS, k, borderType );
+}
+#else
 
 void cv::cornerHarris( InputArray _src, OutputArray _dst, int blockSize, int ksize, double k, int borderType )
 {
@@ -619,6 +628,7 @@ void cv::cornerHarris( InputArray _src, OutputArray _dst, int blockSize, int ksi
             rowRange((blockSize/2)+1, dstStripe.rows-((blockSize/2)+1)).copyTo(dst);
         }
 }
+#endif
 
 typedef std::pair<cv::Point2f, float> my_pair;
 
