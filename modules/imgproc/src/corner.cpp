@@ -43,7 +43,7 @@
 #include "precomp.hpp"
 #include <stdio.h>
 
-
+       
 namespace cv
 {
 
@@ -325,7 +325,7 @@ public:
         int col0,col1;
         col0 = min(cvRound(range.begin() * src.cols / nStripes), src.cols);
         col1 = min(cvRound(range.end() * src.cols / nStripes), src.cols);
-#if defined HAVE_TBB && defined ANDROID
+#if defined HAVE_TBB
             col0 = 8*cvRound((range.begin() * src.cols) / (8*nStripes));
             col1 = 8*cvRound((range.end() * src.cols) / (8*nStripes));
             if(range.end() == nStripes)
@@ -420,7 +420,7 @@ template<typename T> struct greaterThanPtr
         int col0,col1;
         col0 = min(cvRound(range.begin() * src.cols / nStripes), src.cols);
         col1 = min(cvRound(range.end() * src.cols / nStripes), src.cols);
-#if defined HAVE_TBB && defined ANDROID
+#if defined HAVE_TBB
             col0 = 8*cvRound((range.begin() * src.cols) / (8*nStripes));
             col1 = 8*cvRound((range.end() * src.cols) / (8*nStripes));
             if(range.end() == nStripes)
@@ -594,15 +594,6 @@ void cv::cornerMinEigenVal( InputArray _src, OutputArray _dst, int blockSize, in
     Mat dst = _dst.getMat();
     cornerEigenValsVecs( src, dst, blockSize, ksize, MINEIGENVAL, 0, borderType );
 }
-#if 0
-void cv::cornerHarris( InputArray _src, OutputArray _dst, int blockSize, int ksize, double k, int borderType )
-{
-    Mat src = _src.getMat();
-    _dst.create( src.size(), CV_32F );
-    Mat dst = _dst.getMat();
-    cornerEigenValsVecs( src, dst, blockSize, ksize, HARRIS, k, borderType );
-}
-#else
 
 void cv::cornerHarris( InputArray _src, OutputArray _dst, int blockSize, int ksize, double k, int borderType )
 {
@@ -610,7 +601,7 @@ void cv::cornerHarris( InputArray _src, OutputArray _dst, int blockSize, int ksi
     _dst.create( src.size(), CV_32F );
     Mat dst = _dst.getMat();
     int nStripes = 1;
-#if defined HAVE_TBB && defined ANDROID
+#if defined HAVE_TBB
     nStripes = 4;
 #endif
     Mat srcStripe;
@@ -628,7 +619,6 @@ void cv::cornerHarris( InputArray _src, OutputArray _dst, int blockSize, int ksi
             rowRange((blockSize/2)+1, dstStripe.rows-((blockSize/2)+1)).copyTo(dst);
         }
 }
-#endif
 
 typedef std::pair<cv::Point2f, float> my_pair;
 
@@ -647,7 +637,7 @@ void cv::cornerHarris( InputArray _src, OutputArray _dst, InputArray _mask, int 
     Mat mask = _mask.getMat();
     double maxVal = 0;
     int nStripes = 1;
-#if defined HAVE_TBB && defined ANDROID
+#if defined HAVE_TBB
     nStripes = 4;
 #endif
     Mat srcStripe;
