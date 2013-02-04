@@ -622,11 +622,13 @@ void cv::cornerHarris( InputArray _src, OutputArray _dst, int blockSize, int ksi
 
 typedef std::pair<cv::Point2f, float> my_pair;
 
+static
 bool sort_pred(const my_pair& a, const my_pair& b)
 {
     return a.second > b.second;
 }
 
+static
 cv::Point2f firstElement( my_pair &p ) {
     return p.first;
 }
@@ -673,7 +675,7 @@ void cv::cornerHarris( InputArray _src, OutputArray _dst, InputArray _mask, int 
         }
 
         std::vector<my_pair> order(myiter.size());
-        for (int n = 0; n != myiter.size(); n++)
+        for (unsigned int n = 0; n != myiter.size(); n++)
             order[n] = std::make_pair(dst.at(n), myiter.at(n));
         std::sort(order.begin(), order.end(), sort_pred);
 
